@@ -81,6 +81,12 @@ func init() {
 	if err := rootCmd.PersistentFlags().MarkHidden("default-mounts-file"); err != nil {
 		fmt.Println("unable to setup menu")
 	}
+	if err := rootCmd.PersistentFlags().MarkHidden("registries-conf"); err != nil {
+		fmt.Println("unable to setup menu")
+	}
+	if err := rootCmd.PersistentFlags().MarkHidden("registries-conf-dir"); err != nil {
+		fmt.Println("unable to setup menu")
+	}
 }
 
 func initConfig() {

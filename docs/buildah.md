@@ -29,22 +29,6 @@ Print debugging information
 
 Show help
 
-**--registries-conf** *path*
-
-Pathname of the configuration file which specifies which container registries should be
-consulted when completing image names which do not include a registry or domain
-portion.  It is not recommended that this option be used, as the default
-behavior of using the system-wide configuration
-(*/etc/containers/registries.conf*) is most often preferred.
-
-**--registries-conf-dir** *path*
-
-Pathname of the directory which contains configuration snippets which specify
-registries which should be consulted when completing image names which do not
-include a registry or domain portion.  It is not recommended that this option
-be used, as the default behavior of using the system-wide configuration
-(*/etc/containers/registries.d*) is most often preferred.
-
 **--root** **value**
 
 Storage root dir (default: "/var/lib/containers/storage" for UID 0, "$HOME/.local/share/containers/storage" for other users)
