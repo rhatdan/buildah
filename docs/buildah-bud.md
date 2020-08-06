@@ -341,6 +341,14 @@ another process.
 
 Do not use existing cached images for the container build. Build from the start with a new set of cached layers.
 
+**--omit-timestamp** *bool-value*
+
+Set the create timestamp to epoch 0 to allow for deterministic builds (defaults to false).
+By default, the created timestamp is changed and written into the image manifest with every commit,
+causing the image's sha256 hash to be different even if the sources are exactly the same otherwise.
+When --omit-timestamp is set to true, the created timestamp is always set to the epoch and therefore not
+changed, allowing the image's sha256 to remain the same.
+
 **--os**="OS"
 
 Set the OS of the image to the provided value instead of using the current operating system of the host.
