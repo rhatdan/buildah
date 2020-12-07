@@ -10,6 +10,11 @@ source $(dirname $0)/lib.sh
 
 req_env_var OS_RELEASE_ID OS_RELEASE_VER GOSRC IN_PODMAN_IMAGE
 
+#####
+##### FIXME. /etc/containers/storage.conf should have a driver name set
+##### Remove when VMs updated
+sed 's/^driver.*=.*""/driver = "overlay"/g' -i /etc/containers/storage.conf
+
 echo "Setting up $OS_RELEASE_ID $OS_RELEASE_VER"
 cd $GOSRC
 case "$OS_RELEASE_ID" in
