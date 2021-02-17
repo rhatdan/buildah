@@ -58,7 +58,7 @@ github.com/containernetworking/cni/pkg/types/020
 github.com/containernetworking/cni/pkg/types/current
 github.com/containernetworking/cni/pkg/utils
 github.com/containernetworking/cni/pkg/version
-# github.com/containers/common v0.34.2
+# github.com/containers/common v0.35.0
 github.com/containers/common/pkg/apparmor
 github.com/containers/common/pkg/apparmor/internal/supported
 github.com/containers/common/pkg/auth
@@ -67,8 +67,12 @@ github.com/containers/common/pkg/cgroupv2
 github.com/containers/common/pkg/chown
 github.com/containers/common/pkg/completion
 github.com/containers/common/pkg/config
+github.com/containers/common/pkg/report
+github.com/containers/common/pkg/report/camelcase
 github.com/containers/common/pkg/retry
 github.com/containers/common/pkg/seccomp
+github.com/containers/common/pkg/secrets
+github.com/containers/common/pkg/secrets/filedriver
 github.com/containers/common/pkg/subscriptions
 github.com/containers/common/pkg/umask
 github.com/containers/common/version
@@ -599,7 +603,7 @@ gopkg.in/square/go-jose.v2/json
 gopkg.in/tomb.v1
 # gopkg.in/yaml.v2 v2.4.0
 gopkg.in/yaml.v2
-# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+# gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 gopkg.in/yaml.v3
 # k8s.io/klog v1.0.0
 k8s.io/klog

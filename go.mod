@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	github.com/containernetworking/cni v0.8.1
-	github.com/containers/common v0.34.2
+	github.com/containers/common v0.35.0
 	github.com/containers/image/v5 v5.10.2
 	github.com/containers/ocicrypt v1.1.0
 	github.com/containers/storage v1.25.1-0.20210211165435-4b14efb34e07
@@ -15,7 +15,9 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/ishidawataru/sctp v0.0.0-20191218070446-00ab2ac2db07 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-shellwords v1.0.11
+	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/ginkgo v1.15.0
 	github.com/onsi/gomega v1.10.5
 	github.com/opencontainers/go-digest v1.0.0
@@ -36,6 +38,8 @@ require (
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 	golang.org/x/sys v0.0.0-20210112080510-489259a85091
+	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 	k8s.io/klog v1.0.0 // indirect
 )
 
