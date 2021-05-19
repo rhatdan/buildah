@@ -214,11 +214,7 @@ func preprocessDockerfileContents(r io.Reader, ctxDir string) (rdrCloser *io.Rea
 		return nil, err
 	}
 
-	defer func() {
-		if err != nil {
-			pipe.Close()
-		}
-	}()
+	defer pipe.Close()
 
 	if err = cmd.Start(); err != nil {
 		return nil, err
@@ -230,10 +226,10 @@ func preprocessDockerfileContents(r io.Reader, ctxDir string) (rdrCloser *io.Rea
 
 	pipe.Close()
 	if err = cmd.Wait(); err != nil {
-		if stderr.Len() > 0 {
-			err = errors.Wrapf(err, "%v", strings.TrimSpace(stderr.String()))
+		if stdout.Len() == 0 {
+			return nil, errors.Wrapf(err, "error pre-processing Dockerfile")
 		}
-		return nil, errors.Wrapf(err, "error pre-processing Dockerfile")
+		logrus.Warnf("Ignoring %s\n", stderr.String())
 	}
 
 	rc := ioutil.NopCloser(bytes.NewReader(stdout.Bytes()))
