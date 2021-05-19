@@ -2047,6 +2047,15 @@ _EOF
   expect_output --substring "FROM alpine"
 }
 
+@test "bud with Containerfile.in" {
+  _prefetch alpine
+  target=alpine-image
+  run_buildah bud --signature-policy ${TESTSDIR}/policy.json -t ${target} -f ${TESTSDIR}/bud/containerfile/Containerfile.in ${TESTSDIR}/bud/containerfile
+  [ "${status}" -eq 0 ]
+  expect_output --substring "FROM alpine"
+  expect_output --substring "success"
+}
+
 @test "bud with Dockerfile" {
   _prefetch alpine
   target=alpine-image

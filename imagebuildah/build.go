@@ -133,7 +133,7 @@ func BuildDockerfiles(ctx context.Context, store storage.Store, options define.B
 
 		// pre-process Dockerfiles with ".in" suffix
 		if strings.HasSuffix(dfile, ".in") {
-			pData, err := preprocessDockerfileContents(data, options.ContextDirectory)
+			pData, err := preprocessContainerfileContents(dfile, data, options.ContextDirectory)
 			if err != nil {
 				return "", nil, err
 			}
@@ -206,15 +206,15 @@ func warnOnUnsetBuildArgs(logger *logrus.Logger, node *parser.Node, args map[str
 	}
 }
 
-// preprocessDockerfileContents runs CPP(1) in preprocess-only mode on the input
+// preprocessContainerfileContents runs CPP(1) in preprocess-only mode on the input
 // dockerfile content and will use ctxDir as the base include path.
 //
 // Note: we cannot use cmd.StdoutPipe() as cmd.Wait() closes it.
-func preprocessDockerfileContents(r io.Reader, ctxDir string) (rdrCloser *io.ReadCloser, err error) {
+func preprocessContainerfileContents(containerfile string, r io.Reader, ctxDir string) (rdrCloser *io.ReadCloser, err error) {
 	cppPath := "/usr/bin/cpp"
 	if _, err = os.Stat(cppPath); err != nil {
 		if os.IsNotExist(err) {
-			err = errors.Errorf("error: Dockerfile.in support requires %s to be installed", cppPath)
+			err = errors.Errorf("error: %s support requires %s to be installed", containerfile, cppPath)
 		}
 		return nil, err
 	}
