@@ -82,6 +82,10 @@ var (
 		"/usr/local/lib/cni",
 		"/opt/cni/bin",
 	}
+
+	// DefaultRootlessNetwork is the kind of of rootless networking
+	// for containers
+	DefaultRootlessNetwork = "slirp4netns"
 )
 
 const (
@@ -186,24 +190,25 @@ func DefaultConfig() (*Config, error) {
 				"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
 				"TERM=xterm",
 			},
-			EnvHost:        false,
-			HTTPProxy:      true,
-			Init:           false,
-			InitPath:       "",
-			IPCNS:          "private",
-			LogDriver:      DefaultLogDriver,
-			LogSizeMax:     DefaultLogSizeMax,
-			NetNS:          netns,
-			NoHosts:        false,
-			PidsLimit:      DefaultPidsLimit,
-			PidNS:          "private",
-			SeccompProfile: SeccompDefaultPath,
-			ShmSize:        DefaultShmSize,
-			TZ:             "",
-			Umask:          "0022",
-			UTSNS:          "private",
-			UserNS:         "host",
-			UserNSSize:     DefaultUserNSSize,
+			EnvHost:            false,
+			HTTPProxy:          true,
+			Init:               false,
+			InitPath:           "",
+			IPCNS:              "private",
+			LogDriver:          DefaultLogDriver,
+			LogSizeMax:         DefaultLogSizeMax,
+			NetNS:              netns,
+			NoHosts:            false,
+			PidsLimit:          DefaultPidsLimit,
+			PidNS:              "private",
+			RootlessNetworking: DefaultRootlessNetwork,
+			SeccompProfile:     SeccompDefaultPath,
+			ShmSize:            DefaultShmSize,
+			TZ:                 "",
+			Umask:              "0022",
+			UTSNS:              "private",
+			UserNS:             "host",
+			UserNSSize:         DefaultUserNSSize,
 		},
 		Network: NetworkConfig{
 			DefaultNetwork:   "podman",
@@ -293,9 +298,7 @@ func defaultConfigFromMemory() (*EngineConfig, error) {
 		},
 	}
 	// Needs to be called after populating c.OCIRuntimes
-	// Do not emit warnings on OCI runtime: wait for
-	// merged user configuration files
-	c.OCIRuntime = c.findRuntime(false)
+	c.OCIRuntime = c.findRuntime()
 
 	c.ConmonEnvVars = []string{
 		"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
@@ -412,9 +415,6 @@ func probeConmon(conmonBinary string) error {
 
 // NetNS returns the default network namespace
 func (c *Config) NetNS() string {
-	if c.Containers.NetNS == "private" && unshare.IsRootless() {
-		return "slirp4netns"
-	}
 	return c.Containers.NetNS
 }
 
@@ -545,4 +545,10 @@ func (c *Config) LogDriver() string {
 
 func (c *Config) MachineEnabled() bool {
 	return c.Engine.MachineEnabled
+}
+
+// RootlessNetworking returns the "kind" of networking
+// rootless containers should use
+func (c *Config) RootlessNetworking() string {
+	return c.Containers.RootlessNetworking
 }

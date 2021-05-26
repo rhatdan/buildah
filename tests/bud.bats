@@ -1181,7 +1181,8 @@ function _test_http() {
 
 @test "bud with preprocessor error" {
   target=alpine-image
-  run_buildah 1 bud -q --signature-policy ${TESTSDIR}/policy.json -t ${target} -f Error.in ${TESTSDIR}/bud/preprocess
+  run_buildah 0 bud -q --signature-policy ${TESTSDIR}/policy.json -t ${target} -f Error.in ${TESTSDIR}/bud/preprocess
+  expect_output --substring "Ignoring <stdin>:5:2: error: #error"
 }
 
 @test "bud-with-rejected-name" {

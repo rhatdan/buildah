@@ -150,6 +150,11 @@ type ContainersConfig struct {
 	// PidNS indicates how to create a pid namespace for the container
 	PidNS string `toml:"pidns,omitempty"`
 
+	// RootlessNetworking depicts the "kind" of networking for rootless
+	// containers.  Valid options are `slirp4netns` and `cni`. Default is
+	// `slirp4netns`
+	RootlessNetworking string `toml:"rootless_networking,omitempty"`
+
 	// SeccompProfile is the seccomp.json profile path which is used as the
 	// default for the runtime.
 	SeccompProfile string `toml:"seccomp_profile,omitempty"`
@@ -596,7 +601,7 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-func (c *EngineConfig) findRuntime(showWarnings bool) string {
+func (c *EngineConfig) findRuntime() string {
 	// Search for crun first followed by runc and kata
 	for _, name := range []string{"crun", "runc", "kata"} {
 		for _, v := range c.OCIRuntimes[name] {
@@ -605,9 +610,7 @@ func (c *EngineConfig) findRuntime(showWarnings bool) string {
 			}
 		}
 		if path, err := exec.LookPath(name); err == nil {
-			if showWarnings {
-				logrus.Warningf("Found default OCI runtime %s path via PATH environment variable", path)
-			}
+			logrus.Debugf("Found default OCI runtime %s path via PATH environment variable", path)
 			return name
 		}
 	}
@@ -628,10 +631,6 @@ func (c *EngineConfig) Validate() error {
 	if _, err := ValidatePullPolicy(pullPolicy); err != nil {
 		return errors.Wrapf(err, "invalid pull type from containers.conf %q", c.PullPolicy)
 	}
-
-	// Re-populate OCI runtime and emit warnings if necessary
-	c.OCIRuntime = c.findRuntime(true)
-
 	return nil
 }
 
