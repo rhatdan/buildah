@@ -33,7 +33,7 @@ import (
 	units "github.com/docker/go-units"
 	"github.com/hashicorp/go-multierror"
 	digest "github.com/opencontainers/go-digest"
-	rsystem "github.com/opencontainers/runc/libcontainer/system"
+	"github.com/opencontainers/runc/libcontainer/userns"
 	"github.com/opencontainers/selinux/go-selinux"
 	"github.com/opencontainers/selinux/go-selinux/label"
 	"github.com/pkg/errors"
@@ -1189,7 +1189,11 @@ func (d *Driver) get(id string, disableShifting bool, options graphdriver.MountO
 			if d.usingMetacopy {
 				optsList = append(optsList, "metacopy=on")
 			} else {
-				logrus.Warnf("ignoring metacopy option from storage.conf, not supported with booted kernel")
+				logLevel := logrus.WarnLevel
+				if unshare.IsRootless() {
+					logLevel = logrus.DebugLevel
+				}
+				logrus.StandardLogger().Logf(logLevel, "ignoring metacopy option from storage.conf, not supported with booted kernel")
 			}
 		}
 	}
@@ -1586,7 +1590,7 @@ func (d *Driver) ApplyDiffWithDiffer(id, parent string, options *graphdriver.App
 		GIDMaps:           idMappings.GIDs(),
 		IgnoreChownErrors: d.options.ignoreChownErrors,
 		WhiteoutFormat:    d.getWhiteoutFormat(),
-		InUserNS:          rsystem.RunningInUserNS(),
+		InUserNS:          userns.RunningInUserNS(),
 	})
 	out.Target = applyDir
 	return out, err
@@ -1644,7 +1648,7 @@ func (d *Driver) ApplyDiff(id, parent string, options graphdriver.ApplyDiffOpts)
 		IgnoreChownErrors: d.options.ignoreChownErrors,
 		ForceMask:         d.options.forceMask,
 		WhiteoutFormat:    d.getWhiteoutFormat(),
-		InUserNS:          rsystem.RunningInUserNS(),
+		InUserNS:          userns.RunningInUserNS(),
 	}); err != nil {
 		return 0, err
 	}

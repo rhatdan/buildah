@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/containers/image/v5/docker/reference"
@@ -54,6 +53,11 @@ type Runtime struct {
 }
 
 // Returns a copy of the runtime's system context.
+func (r *Runtime) SystemContext() *types.SystemContext {
+	return r.systemContextCopy()
+}
+
+// Returns a copy of the runtime's system context.
 func (r *Runtime) systemContextCopy() *types.SystemContext {
 	var sys types.SystemContext
 	deepcopy.Copy(&sys, &r.systemContext)
@@ -83,6 +87,9 @@ func RuntimeFromStore(store storage.Store, options *RuntimeOptions) (*Runtime, e
 		systemContext = *options.SystemContext
 	} else {
 		systemContext = types.SystemContext{}
+	}
+	if systemContext.BigFilesTemporaryDir == "" {
+		systemContext.BigFilesTemporaryDir = tmpdir()
 	}
 
 	setRegistriesConfPath(&systemContext)
@@ -132,32 +139,51 @@ func (r *Runtime) storageToImage(storageImage *storage.Image, ref types.ImageRef
 }
 
 // Exists returns true if the specicifed image exists in the local containers
-// storage.
+// storage.  Note that it may return false if an image corrupted.
 func (r *Runtime) Exists(name string) (bool, error) {
-	image, _, err := r.LookupImage(name, &LookupImageOptions{IgnorePlatform: true})
+	image, _, err := r.LookupImage(name, nil)
 	if err != nil && errors.Cause(err) != storage.ErrImageUnknown {
 		return false, err
 	}
-	return image != nil, nil
+	if image == nil {
+		return false, nil
+	}
+	if err := image.isCorrupted(name); err != nil {
+		logrus.Error(err)
+		return false, nil
+	}
+	return true, nil
 }
 
 // LookupImageOptions allow for customizing local image lookups.
 type LookupImageOptions struct {
-	// If set, the image will be purely looked up by name.  No matching to
-	// the current platform will be performed.  This can be helpful when
-	// the platform does not matter, for instance, for image removal.
-	IgnorePlatform bool
+	// Lookup an image matching the specified architecture.
+	Architecture string
+	// Lookup an image matching the specified OS.
+	OS string
+	// Lookup an image matching the specified variant.
+	Variant string
 
 	// If set, do not look for items/instances in the manifest list that
 	// match the current platform but return the manifest list as is.
 	lookupManifest bool
+
+	// If the image resolves to a manifest list, we usually lookup a
+	// matching instance and error if none could be found.  In this case,
+	// just return the manifest list.  Required for image removal.
+	returnManifestIfNoInstance bool
 }
 
-// Lookup Image looks up `name` in the local container storage matching the
-// specified SystemContext.  Returns the image and the name it has been found
-// with.  Note that name may also use the `containers-storage:` prefix used to
-// refer to the containers-storage transport.  Returns storage.ErrImageUnknown
-// if the image could not be found.
+// Lookup Image looks up `name` in the local container storage.  Returns the
+// image and the name it has been found with.  Note that name may also use the
+// `containers-storage:` prefix used to refer to the containers-storage
+// transport.  Returns storage.ErrImageUnknown if the image could not be found.
+//
+// Unless specified via the options, the image will be looked up by name only
+// without matching the architecture, os or variant.  An exception is if the
+// image resolves to a manifest list, where an instance of the manifest list
+// matching the local or specified platform (via options.{Architecture,OS,Variant})
+// is returned.
 //
 // If the specified name uses the `containers-storage` transport, the resolved
 // name is empty.
@@ -180,6 +206,15 @@ func (r *Runtime) LookupImage(name string, options *LookupImageOptions) (*Image,
 		}
 		logrus.Debugf("Found image %q in local containers storage (%s)", name, storageRef.StringWithinTransport())
 		return r.storageToImage(img, storageRef), "", nil
+	} else {
+		// Docker compat: strip off the tag iff name is tagged and digested
+		// (e.g., fedora:latest@sha256...).  In that case, the tag is stripped
+		// off and entirely ignored.  The digest is the sole source of truth.
+		normalizedName, err := normalizeTaggedDigestedString(name)
+		if err != nil {
+			return nil, "", err
+		}
+		name = normalizedName
 	}
 
 	originalName := name
@@ -188,6 +223,19 @@ func (r *Runtime) LookupImage(name string, options *LookupImageOptions) (*Image,
 		// Strip off the sha256 prefix so it can be parsed later on.
 		idByDigest = true
 		name = strings.TrimPrefix(name, "sha256:")
+	}
+
+	// Unless specified, set the platform specified in the system context
+	// for later platform matching.  Builder likes to set these things via
+	// the system context at runtime creation.
+	if options.Architecture == "" {
+		options.Architecture = r.systemContext.ArchitectureChoice
+	}
+	if options.OS == "" {
+		options.OS = r.systemContext.OSChoice
+	}
+	if options.Variant == "" {
+		options.Variant = r.systemContext.VariantChoice
 	}
 
 	// First, check if we have an exact match in the storage. Maybe an ID
@@ -275,12 +323,10 @@ func (r *Runtime) lookupImageInLocalStorage(name, candidate string, options *Loo
 		if err != nil {
 			return nil, err
 		}
-		instance, err := manifestList.LookupInstance(context.Background(), "", "", "")
+		instance, err := manifestList.LookupInstance(context.Background(), options.Architecture, options.OS, options.Variant)
 		if err != nil {
-			// NOTE: If we are not looking for a specific platform
-			// and already found the manifest list, then return it
-			// instead of the error.
-			if options.IgnorePlatform {
+			if options.returnManifestIfNoInstance {
+				logrus.Debug("No matching instance was found: returning manifest list instead")
 				return image, nil
 			}
 			return nil, errors.Wrap(storage.ErrImageUnknown, err.Error())
@@ -292,11 +338,7 @@ func (r *Runtime) lookupImageInLocalStorage(name, candidate string, options *Loo
 		image = instance
 	}
 
-	if options.IgnorePlatform {
-		return image, nil
-	}
-
-	matches, err := imageReferenceMatchesContext(context.Background(), ref, &r.systemContext)
+	matches, err := r.imageReferenceMatchesContext(ref, options)
 	if err != nil {
 		return nil, err
 	}
@@ -390,7 +432,7 @@ func (r *Runtime) ResolveName(name string) (string, error) {
 	if name == "" {
 		return "", nil
 	}
-	image, resolvedName, err := r.LookupImage(name, &LookupImageOptions{IgnorePlatform: true})
+	image, resolvedName, err := r.LookupImage(name, nil)
 	if err != nil && errors.Cause(err) != storage.ErrImageUnknown {
 		return "", err
 	}
@@ -408,12 +450,14 @@ func (r *Runtime) ResolveName(name string) (string, error) {
 }
 
 // imageReferenceMatchesContext return true if the specified reference matches
-// the platform (os, arch, variant) as specified by the system context.
-func imageReferenceMatchesContext(ctx context.Context, ref types.ImageReference, sys *types.SystemContext) (bool, error) {
-	if sys == nil {
+// the platform (os, arch, variant) as specified by the lookup options.
+func (r *Runtime) imageReferenceMatchesContext(ref types.ImageReference, options *LookupImageOptions) (bool, error) {
+	if options.Architecture+options.OS+options.Variant == "" {
 		return true, nil
 	}
-	img, err := ref.NewImage(ctx, sys)
+
+	ctx := context.Background()
+	img, err := ref.NewImage(ctx, &r.systemContext)
 	if err != nil {
 		return false, err
 	}
@@ -422,20 +466,18 @@ func imageReferenceMatchesContext(ctx context.Context, ref types.ImageReference,
 	if err != nil {
 		return false, err
 	}
-	osChoice := sys.OSChoice
-	if osChoice == "" {
-		osChoice = runtime.GOOS
+
+	if options.Architecture != "" && options.Architecture != data.Architecture {
+		return false, err
 	}
-	arch := sys.ArchitectureChoice
-	if arch == "" {
-		arch = runtime.GOARCH
+	if options.OS != "" && options.OS != data.Os {
+		return false, err
 	}
-	if osChoice == data.Os && arch == data.Architecture {
-		if sys.VariantChoice == "" || sys.VariantChoice == data.Variant {
-			return true, nil
-		}
+	if options.Variant != "" && options.Variant != data.Variant {
+		return false, err
 	}
-	return false, nil
+
+	return true, nil
 }
 
 // ListImagesOptions allow for customizing listing images.
@@ -460,9 +502,8 @@ func (r *Runtime) ListImages(ctx context.Context, names []string, options *ListI
 
 	var images []*Image
 	if len(names) > 0 {
-		lookupOpts := LookupImageOptions{IgnorePlatform: true}
 		for _, name := range names {
-			image, _, err := r.LookupImage(name, &lookupOpts)
+			image, _, err := r.LookupImage(name, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -561,9 +602,8 @@ func (r *Runtime) RemoveImages(ctx context.Context, names []string, options *Rem
 		// Look up the images one-by-one.  That allows for removing
 		// images that have been looked up successfully while reporting
 		// lookup errors at the end.
-		lookupOptions := LookupImageOptions{IgnorePlatform: true}
 		for _, name := range names {
-			img, resolvedName, err := r.LookupImage(name, &lookupOptions)
+			img, resolvedName, err := r.LookupImage(name, &LookupImageOptions{returnManifestIfNoInstance: true})
 			if err != nil {
 				appendError(err)
 				continue
