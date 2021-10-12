@@ -18,7 +18,7 @@ require (
 	github.com/ishidawataru/sctp v0.0.0-20210226210310-f2269e66cdee // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/mattn/go-shellwords v1.0.12
-	github.com/onsi/ginkgo v1.16.4
+	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.16.0
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.0.2-0.20210730191737-8e42a01fb1b7
