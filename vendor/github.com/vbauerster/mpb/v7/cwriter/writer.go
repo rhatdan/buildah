@@ -22,7 +22,7 @@ const (
 type Writer struct {
 	out        io.Writer
 	buf        bytes.Buffer
-	lineCount  int
+	lines      int
 	fd         int
 	isTerminal bool
 }
@@ -38,15 +38,15 @@ func New(out io.Writer) *Writer {
 }
 
 // Flush flushes the underlying buffer.
-func (w *Writer) Flush(lineCount int) (err error) {
+func (w *Writer) Flush(lines int) (err error) {
 	// some terminals interpret 'cursor up 0' as 'cursor up 1'
-	if w.lineCount > 0 {
+	if w.lines > 0 {
 		err = w.clearLines()
 		if err != nil {
 			return
 		}
 	}
-	w.lineCount = lineCount
+	w.lines = lines
 	_, err = w.buf.WriteTo(w.out)
 	return
 }
@@ -76,9 +76,9 @@ func (w *Writer) GetWidth() (int, error) {
 	return tw, err
 }
 
-func (w *Writer) ansiCuuAndEd() (err error) {
+func (w *Writer) ansiCuuAndEd() error {
 	buf := make([]byte, 8)
-	buf = strconv.AppendInt(buf[:copy(buf, escOpen)], int64(w.lineCount), 10)
-	_, err = w.out.Write(append(buf, cuuAndEd...))
-	return
+	buf = strconv.AppendInt(buf[:copy(buf, escOpen)], int64(w.lines), 10)
+	_, err := w.out.Write(append(buf, cuuAndEd...))
+	return err
 }
