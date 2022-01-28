@@ -324,8 +324,6 @@ github.com/containernetworking/plugins v1.0.1 h1:wwCfYbTCj5FC0EJgyzyjTXmqysOiJE9
 github.com/containernetworking/plugins v1.0.1/go.mod h1:QHCfGpaTwYTbbH+nZXKVTxNBDZcxSOplJT5ico8/FLE=
 github.com/containers/buildah v1.24.0 h1:2FThqm48DsmwoRvxDaRrujZCCRjmSytY4mnURAqWRww=
 github.com/containers/buildah v1.24.0/go.mod h1:logytKk6YhSHuxGa4vc/vRgXACnMQgOD4ONoYgWaUWA=
-github.com/containers/common v0.47.1 h1:/TKIvnIDXvy9VdzWj1L9WLhe3ZEX9sRaA6L0It8ZyTM=
-github.com/containers/common v0.47.1/go.mod h1:vRjkTRres+O4i1k5brS7k2IV8uuiluCzmFRTMRZoyts=
 github.com/containers/conmon v2.0.20+incompatible h1:YbCVSFSCqFjjVwHTPINGdMX1F6JXHGTUje2ZYobNrkg=
 github.com/containers/conmon v2.0.20+incompatible/go.mod h1:hgwZ2mtuDrppv78a/cOBNiCm6O0UMWGx1mu7P00nu5I=
 github.com/containers/image/v5 v5.19.0 h1:aEwc33qYjr2MpmBZlOgkCLu6dH465JTpWnFUCrjAXiQ=
@@ -1109,6 +1107,8 @@ github.com/quasilyte/go-ruleguard/dsl v0.3.10/go.mod h1:KeCP03KrjuSO0H1kTuZQCWlQ
 github.com/quasilyte/go-ruleguard/rules v0.0.0-20201231183845-9e62ed36efe1/go.mod h1:7JTjp89EGyU1d6XfBiXihJNG37wB2VRkd125Q1u7Plc=
 github.com/quasilyte/go-ruleguard/rules v0.0.0-20210428214800-545e0d2e0bf7/go.mod h1:4cgAphtvu7Ftv7vOT2ZOYhC6CvBxZixcasr8qIOTA50=
 github.com/quasilyte/regex/syntax v0.0.0-20200407221936-30656e2c4a95/go.mod h1:rlzQ04UMyJXu/aOvhd8qT+hvDrFpiwqp8MRXDY9szc0=
+github.com/rhatdan/common v0.47.1-0.20220127214218-71504383000f h1:+JxWnHPncXLrm3dyVjaSqJ5V6WhtzVxfGoM+D0KQByA=
+github.com/rhatdan/common v0.47.1-0.20220127214218-71504383000f/go.mod h1:vRjkTRres+O4i1k5brS7k2IV8uuiluCzmFRTMRZoyts=
 github.com/rivo/uniseg v0.1.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
