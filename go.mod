@@ -19,7 +19,7 @@ require (
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/mattn/go-shellwords v1.0.12
 	github.com/onsi/ginkgo v1.16.4
-	github.com/onsi/gomega v1.16.0
+	github.com/onsi/gomega v1.19.0
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.0.2-0.20210730191737-8e42a01fb1b7
 	github.com/opencontainers/runc v1.0.2
@@ -37,8 +37,8 @@ require (
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22
-	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	k8s.io/klog v1.0.0 // indirect
 )
 
