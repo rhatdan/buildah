@@ -11,7 +11,7 @@ require (
 	github.com/containers/storage v1.39.1-0.20220330193934-f3200eb5a5d9
 	github.com/docker/distribution v2.8.1+incompatible
 	github.com/docker/docker v20.10.14+incompatible
-	github.com/docker/go-units v0.4.0
+	github.com/docker/go-units v0.5.0
 	github.com/docker/libnetwork v0.8.0-dev.2.0.20190625141545-5a177b73e316
 	github.com/fsouza/go-dockerclient v1.7.10
 	github.com/ghodss/yaml v1.0.0
