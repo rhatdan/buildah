@@ -1,9 +1,9 @@
 module github.com/containers/buildah
 
-go 1.17
+go 1.18
 
 require (
-	github.com/containerd/containerd v1.6.17
+	github.com/containerd/containerd v1.6.18
 	github.com/containernetworking/cni v1.1.2
 	github.com/containers/common v0.51.0
 	github.com/containers/image/v5 v5.24.1
@@ -11,7 +11,7 @@ require (
 	github.com/containers/storage v1.45.3
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/docker/distribution v2.8.1+incompatible
-	github.com/docker/docker v23.0.0+incompatible
+	github.com/docker/docker v23.0.1+incompatible
 	github.com/docker/go-units v0.5.0
 	github.com/fsouza/go-dockerclient v1.9.4
 	github.com/ghodss/yaml v1.0.0
@@ -103,6 +103,7 @@ require (
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
+	github.com/onsi/ginkgo/v2 v2.8.1 // indirect
 	github.com/ostreedev/ostree-go v0.0.0-20210805093236-719684c64e4f // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -131,7 +132,7 @@ require (
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.6.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
-	golang.org/x/tools v0.4.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 	google.golang.org/genproto v0.0.0-20221227171554-f9683d7f8bef // indirect
 	google.golang.org/grpc v1.52.3 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
