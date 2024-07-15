@@ -2044,6 +2044,7 @@ func (s *StageExecutor) pullCache(ctx context.Context, cacheKey string) (referen
 	for _, src := range srcList {
 		srcDockerRef := src.DockerReference()
 		logrus.Debugf("trying to pull cache from remote repo: %+v", srcDockerRef)
+		imageName := srcDockerRef.String()
 		options := buildah.PullOptions{
 			SignaturePolicyPath: s.executor.signaturePolicyPath,
 			Store:               s.executor.store,
@@ -2059,10 +2060,10 @@ func (s *StageExecutor) pullCache(ctx context.Context, cacheKey string) (referen
 			options.SourceLookupReferenceFunc = s.executor.cachePullSourceLookupReferenceFunc
 		}
 		if s.executor.cachePullDestinationLookupReferenceFunc != nil {
-			options.DestinationLookupReferenceFunc = s.executor.cachePullDestinationLookupReferenceFunc(src)
+			options.DestinationLookupReferenceFunc = s.executor.cachePullDestinationLookupReferenceFunc(imageName)
 		}
 
-		id, err := buildah.Pull(ctx, srcDockerRef.String(), options)
+		id, err := buildah.Pull(ctx, imageName, options)
 		if err != nil {
 			logrus.Debugf("failed pulling cache from source %s: %v", src, err)
 			continue // failed pulling this one try next
