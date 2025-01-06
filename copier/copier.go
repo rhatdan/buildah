@@ -350,6 +350,7 @@ type GetOptions struct {
 	ChmodDirs          *os.FileMode      // set permissions on directories. no effect on archives being extracted
 	ChownFiles         *idtools.IDPair   // set ownership of files. no effect on archives being extracted
 	ChmodFiles         *os.FileMode      // set permissions on files. no effect on archives being extracted
+	Parents            bool              // maintain the sources parent directory in the destination
 	StripSetuidBit     bool              // strip the setuid bit off of items being copied. no effect on archives being extracted
 	StripSetgidBit     bool              // strip the setgid bit off of items being copied. no effect on archives being extracted
 	StripStickyBit     bool              // strip the sticky bit off of items being copied. no effect on archives being extracted

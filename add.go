@@ -94,6 +94,8 @@ type AddAndCopyOptions struct {
 	// RetryDelay is how long to wait before retrying attempts to retrieve
 	// remote contents.
 	RetryDelay time.Duration
+	// Parents preserve parent directories of source content
+	Parents bool
 }
 
 // gitURLFragmentSuffix matches fragments to use as Git reference and build
@@ -506,6 +508,7 @@ func (b *Builder) Add(destination string, extract bool, options AddAndCopyOption
 						ChmodDirs:      chmodDirsFiles,
 						ChownFiles:     chownFiles,
 						ChmodFiles:     chmodDirsFiles,
+						Parents:        options.Parents,
 						StripSetuidBit: options.StripSetuidBit,
 						StripSetgidBit: options.StripSetgidBit,
 						StripStickyBit: options.StripStickyBit,
